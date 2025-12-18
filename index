@@ -1,0 +1,273 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Map, 
+  Droplet, 
+  Scissors, 
+  Users, 
+  Target, 
+  Calendar, 
+  LayoutDashboard,
+  Info,
+  ChevronRight,
+  Map as MapIcon
+} from 'lucide-react';
+
+// Custom Palm Oil Icon Component
+const PalmOilIcon = ({ className }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M12 22s-1-5-1-9 5-6 8-6" />
+    <path d="M12 22s1-5 1-9-5-6-8-6" />
+    <path d="M12 13c-3-2-7-1-7-1s3-4 7-4" />
+    <path d="M12 13c3-2 7-1 7-1s-3-4-7-4" />
+    <path d="M12 9c-1-3-4-6-4-6s4 1 4 6" />
+    <path d="M12 9c1-3 4-6 4-6s-4 1-4 6" />
+    <path d="M12 22v-9" />
+  </svg>
+);
+
+const App = () => {
+  // State untuk Input
+  const [selectedBlock, setSelectedBlock] = useState('A1');
+  const [selectedJob, setSelectedJob] = useState('Pemupukan');
+  const [updateDate, setUpdateDate] = useState('');
+
+  // Generate Opsi Blok A1 sampai A25
+  const blocks = Array.from({ length: 25 }, (_, i) => `A${i + 1}`);
+  const jobs = [
+    'Pemupukan', 
+    'Panen', 
+    'Pengendalian Gulma Kimia', 
+    'Pengendalian Gulma Manual'
+  ];
+
+  // Simulasi Data Engine (Logika penyediaan data berdasarkan input)
+  const getData = (block, job) => {
+    const baseSph = 143; 
+    const blockNum = parseInt(block.substring(1));
+    const sph = baseSph + (blockNum % 3); 
+
+    const jobDetails = {
+      'Pemupukan': {
+        tk: Math.ceil(sph / 20) + 2,
+        material: blockNum % 2 === 0 ? 'Urea' : 'NPK 16-16-16',
+        targetHa: '2.5 Ha/HK',
+        targetDay: '12.5 Ha',
+        targetTk: '0.5 Ha/Org',
+        color: 'bg-blue-600'
+      },
+      'Panen': {
+        tk: Math.floor(sph / 10),
+        material: 'Parang,Egrek,Tojok dan Angkong',
+        targetHa: '1.2 Ton/Ha',
+        targetGay: '15 Ton',
+        targetTk: '1.5 Ton/Org',
+        color: 'bg-orange-600'
+      },
+      'Pengendalian Gulma Kimia': {
+        tk: 5,
+        material: 'Glyphosate / Herbisida',
+        targetHa: '4 Ha/HK',
+        targetDay: '20 Ha',
+        targetTk: '4 Ha/Org',
+        color: 'bg-red-600'
+      },
+      'Pengendalian Gulma Manual': {
+        tk: 12,
+        material: 'Mesin Potong Rumput',
+        targetHa: '0.8 Ha/HK',
+        targetDay: '9.6 Ha',
+        targetTk: '0.8 Ha/Org',
+        color: 'bg-green-600'
+      }
+    };
+
+    return {
+      sph,
+      ...jobDetails[job]
+    };
+  };
+
+  const currentData = getData(selectedBlock, selectedJob);
+
+  useEffect(() => {
+    const now = new Date();
+    setUpdateDate(now.toLocaleDateString('id-ID', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }));
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      {/* Navigation Header */}
+      <nav className="bg-emerald-900 text-white p-4 shadow-xl sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            {/* Logo Kelapa Sawit Baru */}
+            <div className="bg-emerald-800 p-2 rounded-xl shadow-inner border border-emerald-700">
+              <PalmOilIcon className="w-8 h-8 text-emerald-300" />
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-2xl font-black tracking-tighter">ASBUN</span>
+              <span className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">Data Intelligence</span>
+            </div>
+          </div>
+          <div className="hidden md:block text-emerald-200/60 text-xs font-medium uppercase tracking-widest border-l border-emerald-800 pl-4">
+            Manajemen Perkebunan Skala Besar
+          </div>
+        </div>
+      </nav>
+
+      <main className="max-w-6xl mx-auto p-4 md:p-8">
+        {/* Input Section */}
+        <section className="grid md:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 group hover:border-emerald-500 transition-all">
+            <label className="flex items-center gap-2 text-xs font-black text-slate-400 mb-3 tracking-widest uppercase">
+              <LayoutDashboard className="w-4 h-4" /> NOMOR BLOK
+            </label>
+            <select 
+              value={selectedBlock}
+              onChange={(e) => setSelectedBlock(e.target.value)}
+              className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-xl font-bold text-slate-700 appearance-none"
+            >
+              {blocks.map(b => <option key={b} value={b}>Blok {b}</option>)}
+            </select>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 group hover:border-emerald-500 transition-all">
+            <label className="flex items-center gap-2 text-xs font-black text-slate-400 mb-3 tracking-widest uppercase">
+              <Scissors className="w-4 h-4" /> JENIS PEKERJAAN
+            </label>
+            <select 
+              value={selectedJob}
+              onChange={(e) => setSelectedJob(e.target.value)}
+              className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-xl font-bold text-slate-700 appearance-none"
+            >
+              {jobs.map(j => <option key={j} value={j}>{j}</option>)}
+            </select>
+          </div>
+        </section>
+
+        {/* Data Display Section (Bagan Keterangan) */}
+        <section className="bg-white rounded-[2rem] shadow-2xl shadow-emerald-900/5 overflow-hidden border border-slate-200 mb-8">
+          <div className={`p-8 text-white flex justify-between items-center relative overflow-hidden ${currentData.color}`}>
+            <div className="relative z-10">
+              <h2 className="text-3xl font-black uppercase tracking-tight mb-1 italic">Keterangan Kondisi Blok</h2>
+              <p className="opacity-80 font-medium">Laporan Operasional Blok {selectedBlock} • Tahun 2024</p>
+            </div>
+            <PalmOilIcon className="w-32 h-32 absolute -right-8 -bottom-8 opacity-20 rotate-12" />
+          </div>
+
+          <div className="p-8 md:p-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              {/* Primary Metrics */}
+              <div className="space-y-8">
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-700 shadow-sm">
+                    <Target className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">SPH Aktif</p>
+                    <p className="text-3xl font-black text-slate-800 tracking-tight">{currentData.sph} <span className="text-sm font-bold text-slate-400">Pkk/Ha</span></p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-700 shadow-sm">
+                    <Users className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Tenaga Kerja</p>
+                    <p className="text-3xl font-black text-slate-800 tracking-tight">{currentData.tk} <span className="text-sm font-bold text-slate-400">Orang</span></p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Job Details */}
+              <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <h3 className="font-black text-slate-400 text-[10px] tracking-[0.2em] uppercase mb-4">Parameter Teknis</h3>
+                <div className="flex justify-between items-center py-2 border-b border-slate-200">
+                  <span className="text-slate-500 font-medium text-sm italic">Material/Alat</span>
+                  <span className="font-bold text-slate-700">{currentData.material}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-slate-200">
+                  <span className="text-slate-500 font-medium text-sm italic">Target Area</span>
+                  <span className="font-bold text-emerald-700">{currentData.targetHa}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-slate-200">
+                  <span className="text-slate-500 font-medium text-sm italic">Target Harian</span>
+                  <span className="font-bold text-emerald-700">{currentData.targetDay}</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-500 font-medium text-sm italic">Target Per TK</span>
+                  <span className="font-bold text-emerald-700">{currentData.targetTk}</span>
+                </div>
+              </div>
+
+              {/* Status Indicator */}
+              <div className="flex flex-col items-center justify-center text-center p-6 bg-white border-2 border-slate-100 rounded-3xl shadow-inner group">
+                <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <div className="w-4 h-4 bg-emerald-500 rounded-full animate-ping absolute"></div>
+                  <div className="w-4 h-4 bg-emerald-600 rounded-full relative"></div>
+                </div>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Status Blok</p>
+                <div className="px-6 py-2 bg-emerald-600 text-white text-xs font-black rounded-full shadow-lg shadow-emerald-200">TERKENDALI</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Map Visualization */}
+        <section className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-2 bg-emerald-600 rounded-lg">
+              <MapIcon className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="text-2xl font-black text-slate-800 tracking-tight italic">Peta Spasial Blok</h3>
+          </div>
+          
+          <div className="grid grid-cols-5 gap-3 md:gap-4 w-full p-2 bg-slate-100 rounded-2xl border border-slate-200">
+            {blocks.map((b) => (
+              <button 
+                key={b}
+                onClick={() => setSelectedBlock(b)}
+                className={`
+                  aspect-square rounded-xl flex items-center justify-center text-xs md:text-sm font-black transition-all duration-300
+                  ${selectedBlock === b 
+                    ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-200 scale-105 border-4 border-white' 
+                    : 'bg-white text-slate-300 hover:bg-emerald-50 hover:text-emerald-400 border border-slate-100'}
+                `}
+              >
+                {b}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Footer info */}
+        <footer className="flex flex-col md:flex-row justify-between items-center text-slate-400 text-[10px] font-bold tracking-widest border-t border-slate-200 pt-8 pb-12 uppercase">
+          <div className="flex items-center gap-2 mb-4 md:mb-0 bg-slate-100 px-4 py-2 rounded-full border border-slate-200">
+            <Calendar className="w-3 h-3 text-emerald-600" />
+            Terakhir Update: <span className="text-slate-800 ml-1">{updateDate}</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <span className="text-emerald-600">Kelompok 1 v2.5</span>
+            <span className="text-slate-300 italic font-medium lowercase tracking-normal text-xs italic">Developed by Palm-Intelligence Dept.</span>
+          </div>
+        </footer>
+      </main>
+    </div>
+  );
+};
+
+export default App;
